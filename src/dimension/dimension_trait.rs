@@ -211,6 +211,26 @@ pub trait Dimension:
     /// Iteration -- Use self as size, and create the next index after `index`
     /// Return false if iteration is done
     ///
+    /// Next in c-order
+    #[inline]
+    fn next_for_mut(&self, index: &mut Self) -> bool {
+        let mut end_iteration = true;
+        for (&dim, ix) in zip(self.slice(), index.slice_mut()).rev() {
+            *ix += 1;
+            if *ix == dim {
+                *ix = 0;
+            } else {
+                end_iteration = false;
+                break;
+            }
+        }
+        !end_iteration
+    }
+
+    #[doc(hidden)]
+    /// Iteration -- Use self as size, and create the next index after `index`
+    /// Return false if iteration is done
+    ///
     /// Next in f-order
     #[inline]
     fn next_for_f(&self, index: &mut Self) -> bool {

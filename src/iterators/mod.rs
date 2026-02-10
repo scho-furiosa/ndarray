@@ -61,12 +61,13 @@ impl<A, D: Dimension> Iterator for Baseiter<A, D> {
 
     #[inline]
     fn next(&mut self) -> Option<*mut A> {
-        let index = match self.index {
+        let offset = match self.index {
             None => return None,
-            Some(ref ix) => ix.clone(),
+            Some(ref ix) => D::stride_offset(ix, &self.strides),
         };
-        let offset = D::stride_offset(&index, &self.strides);
-        self.index = self.dim.next_for(index);
+        if !self.dim.next_for_mut(self.index.as_mut().unwrap()) {
+            self.index = None;
+        }
         unsafe { Some(self.ptr.offset(offset)) }
     }
 
